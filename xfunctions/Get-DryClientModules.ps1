@@ -26,19 +26,32 @@ function Get-DryClientModules {
     )
 
     try {
+        [String]$DryClientProgramData  = "$($env:ProgramData)\DryClient"
+        [String]$GLOBAL:DryClientLog   = Join-Path -Path $DryClientProgramData -ChildPath 'dry.client.log'
+
         switch (Test-DryElevated) {
             $false {
+                ocl e "Script was run un-elevated - fail and return"
                 throw "Run elevated"
             }
             $true {
+                ocl i "Script was run elevated - continuing"
                 [String]$DefaultModulesListUrl = 'https://raw.githubusercontent.com/bjoernf73/dry.client/main/dry.client.list.json'
-                [String]$ModulesPath           = "$($env:ProgramFiles)\WindowsPowershell\Modules"
+                [String]$ModulesPath           = "$($env:ProgramFiles)\WindowsPowershell\Modules"  
+                [String]$SettingsFile          = Join-Path -Path $DryClientProgramData -ChildPath 'dry.client.settings.json'
                 [String]$ModulesListUrl        = ''
                 
-                $SettingsFile = "$($env:ProgramData)\dryclient\dry.client.settings.json"
+                if (-not (Test-Path -Path $DryClientProgramData)) {
+                    ocl i "Creating '$DryClientProgramData'"
+                    New-Item -Path $DryClientProgramData -ItemType Directory -ErrorAction Stop -Force | 
+                    Out-Null
+                }
+                
                 if (Test-Path -Path $SettingsFile) {
+                    ocl i "SettingsFile '$SettingsFile' exists - getting it"
                     $DryClientSettings = Get-Content -Path $SettingsFile -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
                     if (($null -ne $DryClientSettings.client.list.url) -and (($DryClientSettings.client.list.url).Trim() -ne '')) {
+                        ocl i "Using custom URL for list '$($DryClientSettings.client.list.url)'"
                         [String]$ModulesListUrl = $DryClientSettings.client.list.url
                     }
                 }
@@ -47,21 +60,27 @@ function Get-DryClientModules {
                     $ModulesListUrl = $DefaultModulesListUrl
                 }
 
+                ocl i "Downloading list '$ModulesListUrl'"
                 [Array]$ModuleList = Invoke-WebRequest -Uri $ModulesListUrl -ErrorAction Stop | 
                     Select-Object -ExpandProperty Content -ErrorAction Stop | 
                     ConvertFrom-Json -ErrorAction Stop
 
                 foreach ($Project in $ModuleList) {
-                    # ol i @('Git',$Project.url)
+                    olc i "Getting url:    '$($Project.url)'"
+                    olc i "        path:   '$ModulesPath'"
                     $InstallDryGitModuleParams = @{
                         Source = $Project.url
                         Path = $ModulesPath
                     }
                     
                     if ($Project.branch) {
+                        olc i "        branch: '$($Project.branch)'"
                         $InstallDryGitModuleParams += @{
                             Branch = $Project.branch
                         }
+                    }
+                    else {
+                        olc i "        branch: (n/a)"
                     }
                     Install-DryGitModule @InstallDryGitModuleParams
                 }
