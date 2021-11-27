@@ -28,6 +28,11 @@ function Get-DryClientModules {
     try {
         [String]$DryClientProgramData  = "$($env:ProgramData)\DryClient"
         [String]$GLOBAL:DryClientLog   = Join-Path -Path $DryClientProgramData -ChildPath 'dry.client.log'
+        if (-not (Test-Path -Path $DryClientProgramData)) {
+            ocl i "Creating '$DryClientProgramData'"
+            New-Item -Path $DryClientProgramData -ItemType Directory -ErrorAction Stop -Force | 
+            Out-Null
+        }
 
         switch (Test-DryElevated) {
             $false {
@@ -40,13 +45,7 @@ function Get-DryClientModules {
                 [String]$ModulesPath           = "$($env:ProgramFiles)\WindowsPowershell\Modules"  
                 [String]$SettingsFile          = Join-Path -Path $DryClientProgramData -ChildPath 'dry.client.settings.json'
                 [String]$ModulesListUrl        = ''
-                
-                if (-not (Test-Path -Path $DryClientProgramData)) {
-                    ocl i "Creating '$DryClientProgramData'"
-                    New-Item -Path $DryClientProgramData -ItemType Directory -ErrorAction Stop -Force | 
-                    Out-Null
-                }
-                
+                 
                 if (Test-Path -Path $SettingsFile) {
                     ocl i "SettingsFile '$SettingsFile' exists - getting it"
                     $DryClientSettings = Get-Content -Path $SettingsFile -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
