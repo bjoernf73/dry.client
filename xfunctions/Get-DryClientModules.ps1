@@ -29,10 +29,10 @@ function Get-DryClientModules {
         [String]$DryClientProgramData  = "$($env:ProgramData)\DryClient"
         [String]$GLOBAL:DryClientLog   = Join-Path -Path $DryClientProgramData -ChildPath 'dry.client.log'
         if (-not (Test-Path -Path $DryClientProgramData)) {
-            ocl i "Creating '$DryClientProgramData'"
             New-Item -Path $DryClientProgramData -ItemType Directory -ErrorAction Stop -Force | 
             Out-Null
         }
+        ocl i "Starting update of client modules."
 
         switch (Test-DryElevated) {
             $false {
@@ -88,5 +88,8 @@ function Get-DryClientModules {
     }
     catch {
         $PSCmdlet.ThrowTerminatingError($_)
+    }
+    finally {
+        ocl i "------------------------------------"
     }
 }
