@@ -65,21 +65,21 @@ function Get-DryClientModules {
                     ConvertFrom-Json -ErrorAction Stop
 
                 foreach ($Project in $ModuleList) {
-                    olc i "Getting url:    '$($Project.url)'"
-                    olc i "        path:   '$ModulesPath'"
+                    ocl i "Getting url:    '$($Project.url)'"
+                    ocl i "        path:   '$ModulesPath'"
                     $InstallDryGitModuleParams = @{
                         Source = $Project.url
                         Path = $ModulesPath
                     }
                     
                     if ($Project.branch) {
-                        olc i "        branch: '$($Project.branch)'"
+                        ocl i "        branch: '$($Project.branch)'"
                         $InstallDryGitModuleParams += @{
                             Branch = $Project.branch
                         }
                     }
                     else {
-                        olc i "        branch: (n/a)"
+                        ocl i "        branch: (n/a)"
                     }
                     Install-DryGitModule @InstallDryGitModuleParams
                 }
