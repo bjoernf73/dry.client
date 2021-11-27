@@ -52,7 +52,7 @@ function Get-DryClientModules {
                     ConvertFrom-Json -ErrorAction Stop
 
                 foreach ($Project in $ModuleList) {
-                    ol i @('Git',$Project.url)
+                    # ol i @('Git',$Project.url)
                     $InstallDryGitModuleParams = @{
                         Source = $Project.url
                         Path = $ModulesPath
