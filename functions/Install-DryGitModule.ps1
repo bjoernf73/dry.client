@@ -25,15 +25,18 @@ function Install-DryGitModule {
     
     param (
         [Parameter(HelpMessage="The Source URI of the git project to clone (or checkout)")]
+        [String]
         $Source,
 
         [Parameter(Mandatory,HelpMessage="Path to the directory the project will be cloned 
         into. Not that a repo MyRepo.git will be cloned into My")]
         [ValidateScript({(Get-Item -Path $_) -is [System.IO.DirectoryInfo]})]
-        [String]$Path,
+        [String]
+        $Path,
 
         [Parameter(HelpMessage="The branch (or tag) to checkout")]
-        [String]$Branch
+        [String]
+        $Branch
     )
 
     try {
@@ -56,7 +59,7 @@ function Install-DryGitModule {
             Sync-GitBranch -RepoRoot $ProjectPath -ErrorAction Stop | Out-Null
         } 
         else {
-            Copy-GitRepository -Source $Source -DestinationPath $ProjectPath -ErrorAction Stop
+            Copy-GitRepository -Source $Source -DestinationPath $ProjectPath -ErrorAction Stop | Out-Null
         }
     }
     catch {
@@ -71,6 +74,7 @@ function Install-DryGitModule {
             }
             else {
                 Update-GitRepository -RepoRoot $ProjectPath -Revision $Branch -ErrorAction Stop | Out-Null
+                Sync-GitBranch -RepoRoot $ProjectPath -ErrorAction Stop | Out-Null
             }
         }
     }
