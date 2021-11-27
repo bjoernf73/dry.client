@@ -1,0 +1,10 @@
+[
+    {
+        "url": "https://github.com/bjoernf73/DryActiveDirectory.git",
+        "branch": "main"
+    },
+    {
+        "url": "https://github.com/bjoernf73/dry.module.log.git",
+        "branch": "main"
+    }
+]
