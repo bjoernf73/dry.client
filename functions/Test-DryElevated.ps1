@@ -26,11 +26,21 @@ function Test-DryElevated {
     param ()
 
     try {
-        if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-            $true
+        if ($PSVersionTable.Platform -eq 'Unix') {
+            if ((id -u) -eq 0) {
+                $true
+            }
+            else {
+                $false
+            }
         }
         else {
-            $false
+            if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
+                $true
+            }
+            else {
+                $false
+            }
         }
     }
     catch {
